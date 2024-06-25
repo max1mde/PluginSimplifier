@@ -8,11 +8,21 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
 
+/**
+ * A base class for simplifying Bukkit plugin development.
+ * This class manages plugin initialization, command and event registration,
+ * and provides hooks for plugin startup and shutdown procedures.
+ */
 public abstract class PluginSimplifier extends JavaPlugin {
 
     @Getter
     private static PluginSimplifier pluginInstance;
 
+    /**
+     * Called when the plugin is enabled.
+     * Initializes the plugin instance, registers commands and events,
+     * and optionally calls the onStart method if it is overridden.
+     */
     @Override
     public void onEnable() {
         pluginInstance = this;
@@ -29,6 +39,10 @@ public abstract class PluginSimplifier extends JavaPlugin {
         EventsRegistry.registerEvents();
     }
 
+    /**
+     * Called when the plugin is disabled.
+     * Optionally calls the onStop method if it is overridden.
+     */
     @Override
     public void onDisable() {
         try {
@@ -39,14 +53,27 @@ public abstract class PluginSimplifier extends JavaPlugin {
         }
     }
 
+    /**
+     * Optional method to be overridden by subclasses.
+     * Called automatically during plugin startup after initialization.
+     */
     protected void onStart() {
 
     }
 
+    /**
+     * Optional method to be overridden by subclasses.
+     * Called automatically during plugin shutdown.
+     */
     protected void onStop() {
 
     }
 
+    /**
+     * Initializes fields annotated with @MainClassInstance.
+     * These fields must be of type PluginSimplifier or its subclass.
+     * This method is called during plugin initialization to inject the plugin instance into annotated fields.
+     */
     private void initializeInstance() {
         for (Field field : getClass().getDeclaredFields()) {
             if (field.isAnnotationPresent(MainClassInstance.class)) {
@@ -55,7 +82,7 @@ public abstract class PluginSimplifier extends JavaPlugin {
                     try {
                         field.set(this, this);
                     } catch (IllegalAccessException e) {
-                        getLogger().severe("Could not initialize field annotated with @MainClassInstance: " + field.getName());
+                        getLogger().severe("Failed to initialize @MainClassInstance field: " + field.getName());
                         e.printStackTrace();
                     }
                 } else {
