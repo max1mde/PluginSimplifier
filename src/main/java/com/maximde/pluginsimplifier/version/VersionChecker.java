@@ -1,4 +1,4 @@
-package com.maximde.pluginsimplifier.Version;
+package com.maximde.pluginsimplifier.version;
 
 import org.bukkit.Bukkit;
 
