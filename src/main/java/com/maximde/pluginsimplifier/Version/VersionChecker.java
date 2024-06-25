@@ -1,6 +1,7 @@
 package com.maximde.pluginsimplifier.Version;
 
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 
@@ -40,7 +41,7 @@ public class VersionChecker {
      * @param targetVersion the version to compare against
      * @return true if the server version is higher than the target version, false otherwise
      */
-    public static boolean isHigher(String targetVersion) {
+    public static boolean isHigher(@NotNull String targetVersion) {
         String serverVersion = getServerVersion();
         return VERSION_COMPARATOR.compare(serverVersion, targetVersion) > 0;
     }
@@ -51,7 +52,7 @@ public class VersionChecker {
      * @param targetVersion the version to compare against
      * @return true if the server version is lower than the target version, false otherwise
      */
-    public static boolean isLower(String targetVersion) {
+    public static boolean isLower(@NotNull String targetVersion) {
         String serverVersion = getServerVersion();
         return VERSION_COMPARATOR.compare(serverVersion, targetVersion) < 0;
     }
@@ -62,7 +63,7 @@ public class VersionChecker {
      * @param targetVersion the version to compare against
      * @return true if the server version is the same as the target version, false otherwise
      */
-    public static boolean isSame(String targetVersion) {
+    public static boolean isSame(@NotNull String targetVersion) {
         String serverVersion = getServerVersion();
         return VERSION_COMPARATOR.compare(serverVersion, targetVersion) == 0;
     }
