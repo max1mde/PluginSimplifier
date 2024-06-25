@@ -1,24 +1,27 @@
-package com.maximde.plugin;
+package com.maximde.pluginsimplifier;
 
-import com.maximde.pluginsimplifier.Command.CommandRegistry;
-import com.maximde.pluginsimplifier.Events.EventsRegistry;
+import com.maximde.pluginsimplifier.commands.CommandRegistry;
+import com.maximde.pluginsimplifier.events.EventsRegistry;
+import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class PluginSimplifier extends JavaPlugin {
 
+    @Getter
+    private static PluginSimplifier pluginInstance;
+
     @Override
     public void onEnable() {
-        onStart();
+        pluginInstance = this;
+
         CommandRegistry.registerCommands();
         EventsRegistry.registerEvents();
     }
 
     @Override
     public void onDisable() {
-        onStop();
+
     }
 
-    protected abstract void onStart();
 
-    protected abstract void onStop();
 }

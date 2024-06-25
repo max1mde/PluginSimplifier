@@ -1,9 +1,8 @@
-package com.maximde.pluginsimplifier.Command;
+package com.maximde.pluginsimplifier.commands;
 
-import com.maximde.plugin.PluginHolder;
-import com.maximde.plugin.PluginSimplifier;
-import com.maximde.pluginsimplifier.Annotations.Completer;
-import com.maximde.pluginsimplifier.Annotations.Register;
+import com.maximde.pluginsimplifier.PluginSimplifier;
+import com.maximde.pluginsimplifier.annotations.Completer;
+import com.maximde.pluginsimplifier.annotations.Register;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
 
@@ -18,8 +17,9 @@ import java.util.jar.JarFile;
 import java.util.logging.Level;
 
 public class CommandRegistry {
+
     public static void registerCommands() {
-        PluginSimplifier plugin = PluginHolder.getPluginInstance();
+        PluginSimplifier plugin = PluginSimplifier.getPluginInstance();
         URLClassLoader classLoader = (URLClassLoader) plugin.getClass().getClassLoader();
 
         try {

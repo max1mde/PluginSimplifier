@@ -1,7 +1,6 @@
-package com.maximde.pluginsimplifier.Events;
+package com.maximde.pluginsimplifier.events;
 
-import com.maximde.plugin.PluginHolder;
-import com.maximde.plugin.PluginSimplifier;
+import com.maximde.pluginsimplifier.PluginSimplifier;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 
@@ -16,7 +15,7 @@ import java.util.logging.Level;
 public class EventsRegistry {
 
     public static void registerEvents() {
-        PluginSimplifier plugin = PluginHolder.getPluginInstance();
+        PluginSimplifier plugin = PluginSimplifier.getPluginInstance();
         URLClassLoader classLoader = (URLClassLoader) plugin.getClass().getClassLoader();
 
         try {

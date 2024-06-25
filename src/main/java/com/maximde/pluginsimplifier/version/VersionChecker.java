@@ -1,7 +1,7 @@
 package com.maximde.pluginsimplifier.version;
 
+import lombok.NonNull;
 import org.bukkit.Bukkit;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 
@@ -10,6 +10,7 @@ import java.util.Comparator;
  * Provides methods to compare if the server version is higher, lower, or the same as a target version.
  */
 public class VersionChecker {
+
     private static final Comparator<String> VERSION_COMPARATOR = (v1, v2) -> {
         String[] parts1 = v1.split("\\.");
         String[] parts2 = v2.split("\\.");
@@ -41,7 +42,7 @@ public class VersionChecker {
      * @param targetVersion the version to compare against
      * @return true if the server version is higher than the target version, false otherwise
      */
-    public static boolean isHigher(@NotNull String targetVersion) {
+    public static boolean isHigher(@NonNull String targetVersion) {
         String serverVersion = getServerVersion();
         return VERSION_COMPARATOR.compare(serverVersion, targetVersion) > 0;
     }
@@ -52,7 +53,7 @@ public class VersionChecker {
      * @param targetVersion the version to compare against
      * @return true if the server version is lower than the target version, false otherwise
      */
-    public static boolean isLower(@NotNull String targetVersion) {
+    public static boolean isLower(@NonNull String targetVersion) {
         String serverVersion = getServerVersion();
         return VERSION_COMPARATOR.compare(serverVersion, targetVersion) < 0;
     }
@@ -63,7 +64,7 @@ public class VersionChecker {
      * @param targetVersion the version to compare against
      * @return true if the server version is the same as the target version, false otherwise
      */
-    public static boolean isSame(@NotNull String targetVersion) {
+    public static boolean isSame(@NonNull String targetVersion) {
         String serverVersion = getServerVersion();
         return VERSION_COMPARATOR.compare(serverVersion, targetVersion) == 0;
     }
