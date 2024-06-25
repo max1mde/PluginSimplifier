@@ -29,4 +29,22 @@ dependencies {
 </dependency>
 ```
 
+# Concept`s
+
+- All classes which implement bukkit Listener
+  are automatically registered
+
+- All classes which implement the CommandExecuter
+    are automatically registering a command if there is a register command annotation
+
+
+Example
+```
+@Command(name="example", description="asd", aliases="", permission="")
+public class ExampleCommand ... {
+
+}
+
+```
+
 Don't forget to shade the library
