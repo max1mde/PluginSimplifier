@@ -4,6 +4,7 @@ import com.maximde.pluginsimplifier.annotations.MainClassInstance;
 import com.maximde.pluginsimplifier.commands.CommandRegistry;
 import com.maximde.pluginsimplifier.events.EventsRegistry;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
@@ -15,7 +16,7 @@ import java.lang.reflect.Field;
  */
 public abstract class PluginSimplifier extends JavaPlugin {
 
-    @Getter
+    @Getter @Setter
     private static PluginSimplifier pluginInstance;
 
     /**
