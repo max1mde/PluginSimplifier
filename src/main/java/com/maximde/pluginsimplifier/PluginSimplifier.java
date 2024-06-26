@@ -1,11 +1,17 @@
 package com.maximde.pluginsimplifier;
 
 import com.maximde.pluginsimplifier.annotations.MainClassInstance;
+import com.maximde.pluginsimplifier.commands.CommandRegistry;
+import com.maximde.pluginsimplifier.events.EventsRegistry;
+import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
 
 public abstract class PluginSimplifier extends JavaPlugin {
+
+    @Getter
+    private static PluginSimplifier pluginInstance;
 
     @Override
     public void onEnable() {
@@ -17,6 +23,9 @@ public abstract class PluginSimplifier extends JavaPlugin {
         } catch (NoSuchMethodException ignored) {
 
         }
+
+        CommandRegistry.registerCommands();
+        EventsRegistry.registerEvents();
     }
 
     @Override
