@@ -1,5 +1,6 @@
 package com.maximde.pluginsimplifier.commands;
 
+import com.maximde.pluginsimplifier.PluginHolder;
 import com.maximde.pluginsimplifier.PluginSimplifier;
 import com.maximde.pluginsimplifier.annotations.Completer;
 import com.maximde.pluginsimplifier.annotations.Register;
@@ -18,8 +19,8 @@ import java.util.logging.Level;
 
 public class CommandRegistry {
 
-    public static void registerCommands() {
-        PluginSimplifier plugin = PluginSimplifier.getPluginInstance();
+    public static void registerCommands(String... prefixes) {
+        PluginSimplifier plugin = PluginHolder.getPluginInstance();
         URLClassLoader classLoader = (URLClassLoader) plugin.getClass().getClassLoader();
 
         try {
@@ -33,48 +34,65 @@ public class CommandRegistry {
                     JarEntry entry = entries.nextElement();
                     if (entry.getName().endsWith(".class")) {
                         String className = entry.getName().replace('/', '.').replace(".class", "");
-                        Class<?> clazz = Class.forName(className);
 
-                        boolean hasRegisterAnnotation = false;
-                        boolean hasCompleterAnnotation = false;
-
-                        for (Method method : clazz.getDeclaredMethods()) {
-                            if (method.isAnnotationPresent(Register.class)) {
-                                hasRegisterAnnotation = true;
-                            }
-                            if (method.isAnnotationPresent(Completer.class)) {
-                                hasCompleterAnnotation = true;
+                        boolean matchesPrefix = false;
+                        for (String prefix : prefixes) {
+                            if (className.startsWith(prefix.replace('/', '.'))) {
+                                matchesPrefix = true;
+                                break;
                             }
                         }
 
-                        if (hasRegisterAnnotation) {
-                            if (CommandExecutor.class.isAssignableFrom(clazz)) {
-                                CommandExecutor executorInstance;
-                                try {
-                                    executorInstance = (CommandExecutor) clazz.getConstructor(PluginSimplifier.class).newInstance(plugin);
-                                } catch (NoSuchMethodException e) {
-                                    executorInstance = (CommandExecutor) clazz.getConstructor().newInstance();
+                        if (!matchesPrefix) {
+                            continue;
+                        }
+
+                        try {
+                            Class<?> clazz = Class.forName(className);
+
+                            boolean hasRegisterAnnotation = false;
+                            boolean hasCompleterAnnotation = false;
+
+                            for (Method method : clazz.getDeclaredMethods()) {
+                                if (method.isAnnotationPresent(Register.class)) {
+                                    hasRegisterAnnotation = true;
                                 }
+                                if (method.isAnnotationPresent(Completer.class)) {
+                                    hasCompleterAnnotation = true;
+                                }
+                            }
 
-                                for (Method method : clazz.getDeclaredMethods()) {
-                                    if (method.isAnnotationPresent(Register.class)) {
-                                        Register registerAnnotation = method.getAnnotation(Register.class);
-                                        String commandName = registerAnnotation.value();
+                            if (hasRegisterAnnotation) {
+                                if (CommandExecutor.class.isAssignableFrom(clazz)) {
+                                    CommandExecutor executorInstance;
+                                    try {
+                                        executorInstance = (CommandExecutor) clazz.getConstructor(PluginSimplifier.class).newInstance(plugin);
+                                    } catch (NoSuchMethodException e) {
+                                        executorInstance = (CommandExecutor) clazz.getConstructor().newInstance();
+                                    }
 
-                                        if (plugin.getCommand(commandName) != null) {
-                                            Objects.requireNonNull(plugin.getCommand(commandName)).setExecutor(executorInstance);
+                                    for (Method method : clazz.getDeclaredMethods()) {
+                                        if (method.isAnnotationPresent(Register.class)) {
+                                            Register registerAnnotation = method.getAnnotation(Register.class);
+                                            String commandName = registerAnnotation.value();
 
-                                            if (hasCompleterAnnotation) {
-                                                Completer completerAnnotation = method.getAnnotation(Completer.class);
-                                                TabCompleter completer = completerAnnotation.value().newInstance();
-                                                Objects.requireNonNull(plugin.getCommand(commandName)).setTabCompleter(completer);
+                                            if (plugin.getCommand(commandName) != null) {
+                                                Objects.requireNonNull(plugin.getCommand(commandName)).setExecutor(executorInstance);
+
+                                                if (hasCompleterAnnotation) {
+                                                    Completer completerAnnotation = method.getAnnotation(Completer.class);
+                                                    TabCompleter completer = completerAnnotation.value().newInstance();
+                                                    Objects.requireNonNull(plugin.getCommand(commandName)).setTabCompleter(completer);
+                                                }
+                                            } else {
+                                                plugin.getLogger().log(Level.WARNING, "Command not found in plugin.yml: " + commandName);
                                             }
-                                        } else {
-                                            plugin.getLogger().log(Level.WARNING, "Command not found in plugin.yml: " + commandName);
                                         }
                                     }
                                 }
                             }
+                        } catch (NoClassDefFoundError | ClassNotFoundException ignored) {
+
                         }
                     }
                 }

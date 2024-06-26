@@ -1,5 +1,6 @@
 package com.maximde.pluginsimplifier.events;
 
+import com.maximde.pluginsimplifier.PluginHolder;
 import com.maximde.pluginsimplifier.PluginSimplifier;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
@@ -14,8 +15,8 @@ import java.util.logging.Level;
 
 public class EventsRegistry {
 
-    public static void registerEvents() {
-        PluginSimplifier plugin = PluginSimplifier.getPluginInstance();
+    public static void registerEvents(String... prefixes) {
+        PluginSimplifier plugin = PluginHolder.getPluginInstance();
         URLClassLoader classLoader = (URLClassLoader) plugin.getClass().getClassLoader();
 
         try {
@@ -28,13 +29,30 @@ public class EventsRegistry {
 
                 while (entries.hasMoreElements()) {
                     JarEntry entry = entries.nextElement();
-                    if (entry.getName().endsWith(".class") && !entry.getName().contains("module-info")) {
+                    if (entry.getName().endsWith(".class")) {
                         String className = entry.getName().replace('/', '.').replace(".class", "");
-                        Class<?> clazz = Class.forName(className);
 
-                        if (Listener.class.isAssignableFrom(clazz)) {
-                            Listener listenerInstance = (Listener) clazz.getConstructor().newInstance();
-                            pluginManager.registerEvents(listenerInstance, plugin);
+                        boolean matchesPrefix = false;
+                        for (String prefix : prefixes) {
+                            if (className.startsWith(prefix.replace('/', '.'))) {
+                                matchesPrefix = true;
+                                break;
+                            }
+                        }
+
+                        if (!matchesPrefix) {
+                            continue;
+                        }
+
+                        try {
+                            Class<?> clazz = Class.forName(className);
+
+                            if (Listener.class.isAssignableFrom(clazz)) {
+                                Listener listenerInstance = (Listener) clazz.getConstructor().newInstance();
+                                pluginManager.registerEvents(listenerInstance, plugin);
+                            }
+                        } catch (NoClassDefFoundError | ClassNotFoundException e) {
+                            plugin.getLogger().log(Level.WARNING, "Skipping class " + className + " due to error: " + e.getMessage());
                         }
                     }
                 }
