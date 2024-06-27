@@ -7,12 +7,11 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    maven ("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    maven("https://repo.papermc.io/repository/maven-public")
 }
 
 dependencies {
-    compileOnly ("org.projectlombok:lombok:1.18.32")
-    annotationProcessor ("org.projectlombok:lombok:1.18.32")
-    compileOnly ("org.spigotmc:spigot-api:1.20.6-R0.1-SNAPSHOT")
+    compileOnly("org.projectlombok:lombok:1.18.32")
+    annotationProcessor("org.projectlombok:lombok:1.18.32")
+    compileOnly("io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT")
 }
-
