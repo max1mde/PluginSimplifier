@@ -1,12 +1,13 @@
-package com.maximde.pluginsimplifier.commands;
+package com.maximde.pluginsimplifier.automation;
 
 import com.maximde.pluginsimplifier.PluginHolder;
 import com.maximde.pluginsimplifier.PluginSimplifier;
 import com.maximde.pluginsimplifier.annotations.Completer;
 import com.maximde.pluginsimplifier.annotations.Register;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.PluginManager;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -19,8 +20,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 
-public class CommandRegistry {
-
+public class AutoRegister {
     public static void registerCommands(String... prefixes) {
         PluginSimplifier plugin = PluginHolder.getPluginInstance();
         URLClassLoader classLoader = (URLClassLoader) plugin.getClass().getClassLoader();
@@ -106,6 +106,36 @@ public class CommandRegistry {
             }
         } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Failed to register commands.", e);
+        }
+    }
+
+    public static void registerEvents() {
+        PluginSimplifier plugin = PluginHolder.getPluginInstance();
+        URLClassLoader classLoader = (URLClassLoader) plugin.getClass().getClassLoader();
+
+        try {
+            URL jarUrl = classLoader.getURLs()[0];
+            File jarFile = new File(jarUrl.toURI());
+
+            try (JarFile jar = new JarFile(jarFile)) {
+                Enumeration<JarEntry> entries = jar.entries();
+                PluginManager pluginManager = plugin.getServer().getPluginManager();
+
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = entries.nextElement();
+                    if (entry.getName().endsWith(".class")) {
+                        String className = entry.getName().replace('/', '.').replace(".class", "");
+                        Class<?> clazz = Class.forName(className);
+
+                        if (Listener.class.isAssignableFrom(clazz)) {
+                            Listener listenerInstance = (Listener) clazz.getConstructor().newInstance();
+                            pluginManager.registerEvents(listenerInstance, plugin);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.SEVERE, "Failed to register events.", e);
         }
     }
 }

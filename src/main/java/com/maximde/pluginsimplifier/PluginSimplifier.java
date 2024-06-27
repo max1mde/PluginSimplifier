@@ -7,17 +7,8 @@ import java.lang.reflect.Field;
 
 public abstract class PluginSimplifier extends JavaPlugin {
 
-    private static boolean initialized = false;
-
     @Override
     public void onEnable() {
-
-        if (initialized) {
-            getLogger().severe("Plugin already initialized!");
-            return;
-        }
-        initialized = true;
-
         initializeInstance();
 
         try {
