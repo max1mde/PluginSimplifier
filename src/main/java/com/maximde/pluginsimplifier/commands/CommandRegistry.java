@@ -4,10 +4,12 @@ import com.maximde.pluginsimplifier.PluginHolder;
 import com.maximde.pluginsimplifier.PluginSimplifier;
 import com.maximde.pluginsimplifier.annotations.Completer;
 import com.maximde.pluginsimplifier.annotations.Register;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -65,10 +67,15 @@ public class CommandRegistry {
                             if (hasRegisterAnnotation) {
                                 if (CommandExecutor.class.isAssignableFrom(clazz)) {
                                     CommandExecutor executorInstance;
+
                                     try {
                                         executorInstance = (CommandExecutor) clazz.getConstructor(PluginSimplifier.class).newInstance(plugin);
                                     } catch (NoSuchMethodException e) {
-                                        executorInstance = (CommandExecutor) clazz.getConstructor().newInstance();
+                                        try {
+                                            executorInstance = (CommandExecutor) clazz.getConstructor().newInstance();
+                                        } catch (InvocationTargetException e2) {
+                                            continue;
+                                        }
                                     }
 
                                     for (Method method : clazz.getDeclaredMethods()) {

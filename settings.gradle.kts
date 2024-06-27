@@ -1,2 +1,1 @@
-rootProject.name = "PluginSimplifier2"
-
+rootProject.name = "PluginSimplifier"
