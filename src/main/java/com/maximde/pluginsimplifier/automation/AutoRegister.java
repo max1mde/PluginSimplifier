@@ -7,7 +7,6 @@ import com.maximde.pluginsimplifier.annotations.Register;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.PluginManager;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -21,11 +20,25 @@ import java.util.jar.JarFile;
 import java.util.logging.Level;
 
 public class AutoRegister {
-    public static void registerCommands(String... prefixes) {
-        PluginSimplifier plugin = PluginHolder.getPluginInstance();
-        URLClassLoader classLoader = (URLClassLoader) plugin.getClass().getClassLoader();
 
+    private static final PluginSimplifier plugin = PluginHolder.getPluginInstance();
+
+    public static void registerAll(String packageName) {
+        registerCommands(packageName);
+        registerEvents(packageName);
+    }
+
+    public static void registerCommands(String... packageNames) {
+        processClasses(packageNames, AutoRegister::registerCommand);
+    }
+
+    public static void registerEvents(String... packageNames) {
+        processClasses(packageNames, AutoRegister::registerEvent);
+    }
+
+    private static void processClasses(String[] packageNames, ClassProcessor processor) {
         try {
+            URLClassLoader classLoader = (URLClassLoader) plugin.getClass().getClassLoader();
             URL jarUrl = classLoader.getURLs()[0];
             File jarFile = new File(jarUrl.toURI());
 
@@ -37,105 +50,92 @@ public class AutoRegister {
                     if (entry.getName().endsWith(".class")) {
                         String className = entry.getName().replace('/', '.').replace(".class", "");
 
-                        boolean matchesPrefix = false;
-                        for (String prefix : prefixes) {
-                            if (className.startsWith(prefix.replace('/', '.'))) {
-                                matchesPrefix = true;
-                                break;
-                            }
-                        }
-
-                        if (!matchesPrefix) {
-                            continue;
-                        }
-
-                        try {
-                            Class<?> clazz = Class.forName(className);
-
-                            boolean hasRegisterAnnotation = false;
-                            boolean hasCompleterAnnotation = false;
-
-                            for (Method method : clazz.getDeclaredMethods()) {
-                                if (method.isAnnotationPresent(Register.class)) {
-                                    hasRegisterAnnotation = true;
-                                }
-                                if (method.isAnnotationPresent(Completer.class)) {
-                                    hasCompleterAnnotation = true;
-                                }
-                            }
-
-                            if (hasRegisterAnnotation) {
-                                if (CommandExecutor.class.isAssignableFrom(clazz)) {
-                                    CommandExecutor executorInstance;
-
-                                    try {
-                                        executorInstance = (CommandExecutor) clazz.getConstructor(PluginSimplifier.class).newInstance(plugin);
-                                    } catch (NoSuchMethodException e) {
-                                        try {
-                                            executorInstance = (CommandExecutor) clazz.getConstructor().newInstance();
-                                        } catch (InvocationTargetException e2) {
-                                            continue;
-                                        }
-                                    }
-
-                                    for (Method method : clazz.getDeclaredMethods()) {
-                                        if (method.isAnnotationPresent(Register.class)) {
-                                            Register registerAnnotation = method.getAnnotation(Register.class);
-                                            String commandName = registerAnnotation.value();
-
-                                            if (plugin.getCommand(commandName) != null) {
-                                                Objects.requireNonNull(plugin.getCommand(commandName)).setExecutor(executorInstance);
-
-                                                if (hasCompleterAnnotation) {
-                                                    Completer completerAnnotation = method.getAnnotation(Completer.class);
-                                                    TabCompleter completer = completerAnnotation.value().newInstance();
-                                                    Objects.requireNonNull(plugin.getCommand(commandName)).setTabCompleter(completer);
-                                                }
-                                            } else {
-                                                plugin.getLogger().log(Level.WARNING, "Command not found in plugin.yml: " + commandName);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        } catch (NoClassDefFoundError | ClassNotFoundException ignored) {
-
+                        if (matchesPackage(className, packageNames)) {
+                            try {
+                                Class<?> clazz = Class.forName(className);
+                                processor.process(clazz);
+                            } catch (NoClassDefFoundError | ClassNotFoundException ignored) {}
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to register commands.", e);
+            plugin.getLogger().log(Level.SEVERE, "Failed to process classes.", e);
         }
     }
 
-    public static void registerEvents() {
-        PluginSimplifier plugin = PluginHolder.getPluginInstance();
-        URLClassLoader classLoader = (URLClassLoader) plugin.getClass().getClassLoader();
+    private static boolean matchesPackage(String className, String[] packageNames) {
+        for (String packageName : packageNames) {
+            if (className.startsWith(packageName.replace('/', '.'))) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-        try {
-            URL jarUrl = classLoader.getURLs()[0];
-            File jarFile = new File(jarUrl.toURI());
+    private static void registerCommand(Class<?> clazz) {
+        if (!CommandExecutor.class.isAssignableFrom(clazz)) {
+            return;
+        }
 
-            try (JarFile jar = new JarFile(jarFile)) {
-                Enumeration<JarEntry> entries = jar.entries();
-                PluginManager pluginManager = plugin.getServer().getPluginManager();
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (method.isAnnotationPresent(Register.class)) {
+                Register registerAnnotation = method.getAnnotation(Register.class);
+                String commandName = registerAnnotation.value();
 
-                while (entries.hasMoreElements()) {
-                    JarEntry entry = entries.nextElement();
-                    if (entry.getName().endsWith(".class")) {
-                        String className = entry.getName().replace('/', '.').replace(".class", "");
-                        Class<?> clazz = Class.forName(className);
+                CommandExecutor executorInstance = createExecutorInstance(clazz);
+                if (executorInstance == null) {
+                    continue;
+                }
 
-                        if (Listener.class.isAssignableFrom(clazz)) {
-                            Listener listenerInstance = (Listener) clazz.getConstructor().newInstance();
-                            pluginManager.registerEvents(listenerInstance, plugin);
-                        }
+                if (plugin.getCommand(commandName) != null) {
+                    Objects.requireNonNull(plugin.getCommand(commandName)).setExecutor(executorInstance);
+
+                    if (method.isAnnotationPresent(Completer.class)) {
+                        registerCompleter(method, commandName);
                     }
+                } else {
+                    plugin.getLogger().log(Level.WARNING, "Command not found in plugin.yml: " + commandName);
                 }
             }
-        } catch (Exception e) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to register events.", e);
         }
+    }
+
+    private static CommandExecutor createExecutorInstance(Class<?> clazz) {
+        if (clazz.isInstance(plugin)) {
+            return plugin;
+        }
+        try {
+            return (CommandExecutor) clazz.getConstructor().newInstance();
+        } catch (Exception ex) {
+            plugin.getLogger().log(Level.SEVERE, "Failed to create instance of " + clazz.getName(), ex);
+            return null;
+        }
+    }
+
+    private static void registerCompleter(Method method, String commandName) {
+        try {
+            Completer completerAnnotation = method.getAnnotation(Completer.class);
+            TabCompleter completer = completerAnnotation.value().newInstance();
+            Objects.requireNonNull(plugin.getCommand(commandName)).setTabCompleter(completer);
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.SEVERE, "Failed to register tab completer for command: " + commandName, e);
+        }
+    }
+
+    private static void registerEvent(Class<?> clazz) {
+        if (Listener.class.isAssignableFrom(clazz)) {
+            try {
+                Listener listenerInstance = (Listener) clazz.getConstructor().newInstance();
+                plugin.getServer().getPluginManager().registerEvents(listenerInstance, plugin);
+            } catch (Exception e) {
+                plugin.getLogger().log(Level.SEVERE, "Failed to register event listener: " + clazz.getName(), e);
+            }
+        }
+    }
+
+    @FunctionalInterface
+    private interface ClassProcessor {
+        void process(Class<?> clazz) throws InvocationTargetException, InstantiationException, IllegalAccessException;
     }
 }
