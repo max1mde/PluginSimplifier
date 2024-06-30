@@ -25,15 +25,32 @@ public class AutoRegister {
     private static final PluginSimplifier plugin = PluginHolder.getPluginInstance();
     private static final CommandRegistrar commandRegistrar = new CommandRegistrar();
 
-    public static void registerAll(String packageName) {
-        registerCommands(packageName);
-        registerEvents(packageName);
+    /**
+     * Registers all commands with @Register annotation
+     * As well as all classes which implement Listener
+     * Which are found in the package/subpackages.
+     *
+     * @param packageNames the package names to scan for commands and events
+     */
+    public static void registerAll(String... packageNames) {
+        registerCommands(packageNames);
+        registerEvents(packageNames);
     }
 
+    /**
+     * Registers all commands with @Register annotation found in the package/subpackages.
+     *
+     * @param packageNames the package names to scan for commands
+     */
     public static void registerCommands(String... packageNames) {
         processClasses(packageNames, AutoRegister::registerCommand);
     }
 
+    /**
+     * Registers all classes which implement Listener found in the package/subpackages.
+     *
+     * @param packageNames the package names to scan for events
+     */
     public static void registerEvents(String... packageNames) {
         processClasses(packageNames, AutoRegister::registerEvent);
     }
