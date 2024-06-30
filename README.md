@@ -29,22 +29,24 @@ dependencies {
 </dependency>
 ```
 
-# Concept`s
+# Concepts
 
-- All classes which implement bukkit Listener
-  are automatically registered
+- Commands:
+    The registerCommands(String...) method should accept package names as arguments, such as "com/maximde/coolplugin". This method will search through the specified packages and their subpackages. If any class implements CommandExecutor and has the @Register 
+    annotation, the command will be registered automatically.
 
-- All classes which implement the CommandExecuter
-    are automatically registering a command if there is a register command annotation
+- Listeners:
+    The registerEvents(String...) method should accept package names as arguments, similar to registerCommands. This method will search through the specified packages and their subpackages. If any class implements Listener, it will be registered automatically.
 
 
 Example
 ```
-@Command(name="example", description="asd", aliases="", permission="")
-public class ExampleCommand ... {
+@Register(name="example", description="example command", aliases="ex, ex2", permission="example.use")
+public boolean onCommand ... {
 
 }
 
 ```
+**You only need to add `name="<string>"`, everything else is optimal.**
 
 Don't forget to shade the library
