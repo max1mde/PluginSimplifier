@@ -1,16 +1,11 @@
 package com.maximde.pluginsimplifier;
 
-import com.maximde.pluginsimplifier.annotations.MainClassInstance;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.lang.reflect.Field;
 
 public abstract class PluginSimplifier extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        initializeInstance();
-
         try {
             getClass().getDeclaredMethod("onStart");
             onStart();
@@ -43,28 +38,5 @@ public abstract class PluginSimplifier extends JavaPlugin {
      */
     protected void onStop() {
 
-    }
-
-    /**
-     * Initializes fields annotated with @MainClassInstance.
-     * These fields must be of type PluginSimplifier or its subclass.
-     * This method is called during plugin initialization to inject the plugin instance into annotated fields.
-     */
-    private void initializeInstance() {
-        for (Field field : getClass().getDeclaredFields()) {
-            if (field.isAnnotationPresent(MainClassInstance.class)) {
-                if (PluginSimplifier.class.isAssignableFrom(field.getType())) {
-                    field.setAccessible(true);
-                    try {
-                        field.set(this, this);
-                    } catch (IllegalAccessException e) {
-                        getLogger().severe("Failed to initialize @MainClassInstance field: " + field.getName());
-                        e.printStackTrace();
-                    }
-                } else {
-                    getLogger().warning("Field annotated with @MainClassInstance must be of type PluginSimplifier: " + field.getName());
-                }
-            }
-        }
     }
 }
