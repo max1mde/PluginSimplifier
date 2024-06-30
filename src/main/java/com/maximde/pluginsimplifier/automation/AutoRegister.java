@@ -4,6 +4,7 @@ import com.maximde.pluginsimplifier.PluginHolder;
 import com.maximde.pluginsimplifier.PluginSimplifier;
 import com.maximde.pluginsimplifier.annotations.Completer;
 import com.maximde.pluginsimplifier.annotations.Register;
+import com.maximde.pluginsimplifier.command.CommandRegistrar;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.event.Listener;
@@ -22,6 +23,7 @@ import java.util.logging.Level;
 public class AutoRegister {
 
     private static final PluginSimplifier plugin = PluginHolder.getPluginInstance();
+    private static final CommandRegistrar commandRegistrar = new CommandRegistrar();
 
     public static void registerAll(String packageName) {
         registerCommands(packageName);
@@ -54,7 +56,8 @@ public class AutoRegister {
                             try {
                                 Class<?> clazz = Class.forName(className);
                                 processor.process(clazz);
-                            } catch (NoClassDefFoundError | ClassNotFoundException ignored) {}
+                            } catch (NoClassDefFoundError | ClassNotFoundException ignored) {
+                            }
                         }
                     }
                 }
@@ -81,21 +84,20 @@ public class AutoRegister {
         for (Method method : clazz.getDeclaredMethods()) {
             if (method.isAnnotationPresent(Register.class)) {
                 Register registerAnnotation = method.getAnnotation(Register.class);
-                String commandName = registerAnnotation.value();
+                String commandName = registerAnnotation.name();
+                String description = registerAnnotation.description();
+                String aliases = registerAnnotation.aliases();
+                String permission = registerAnnotation.permission();
 
                 CommandExecutor executorInstance = createExecutorInstance(clazz);
                 if (executorInstance == null) {
                     continue;
                 }
 
-                if (plugin.getCommand(commandName) != null) {
-                    Objects.requireNonNull(plugin.getCommand(commandName)).setExecutor(executorInstance);
+                commandRegistrar.registerCommand(commandName, executorInstance, description, aliases, permission);
 
-                    if (method.isAnnotationPresent(Completer.class)) {
-                        registerCompleter(method, commandName);
-                    }
-                } else {
-                    plugin.getLogger().log(Level.WARNING, "Command not found in plugin.yml: " + commandName);
+                if (method.isAnnotationPresent(Completer.class)) {
+                    registerCompleter(method, commandName);
                 }
             }
         }

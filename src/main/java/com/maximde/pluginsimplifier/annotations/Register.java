@@ -5,5 +5,11 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Register {
-    String value();
+    String name();
+
+    String description() default "";
+
+    String aliases() default "";
+
+    String permission() default "";
 }
