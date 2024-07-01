@@ -5,6 +5,7 @@ import com.maximde.pluginsimplifier.PluginSimplifier;
 import com.maximde.pluginsimplifier.annotations.Completer;
 import com.maximde.pluginsimplifier.annotations.Register;
 import com.maximde.pluginsimplifier.command.CommandRegistrar;
+import lombok.NonNull;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.event.Listener;
@@ -15,6 +16,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -26,24 +28,26 @@ public class AutoRegister {
     private static final CommandRegistrar commandRegistrar = new CommandRegistrar();
 
     /**
-     * Registers all commands with @Register annotation
-     * As well as all classes which implement Listener
-     * Which are found in the package/subpackages.
+     * Registers all commands with @Register annotation as well as all classes which implement Listener
+     * found in the package/subpackages, excluding specified commands.
      *
-     * @param packageNames the package names to scan for commands and events
+     * @param packageNames     the package names to scan for commands and events
+     * @param excludedCommands the list of command names to exclude from registration
      */
-    public static void registerAll(String... packageNames) {
-        registerCommands(packageNames);
+    public static void registerAll(@NonNull String[] packageNames, @NonNull List<String> excludedCommands) {
+        registerCommands(packageNames, excludedCommands);
         registerEvents(packageNames);
     }
 
     /**
-     * Registers all commands with @Register annotation found in the package/subpackages.
+     * Registers all commands with @Register annotation found in the package/subpackages,
+     * excluding specified commands.
      *
-     * @param packageNames the package names to scan for commands
+     * @param packageNames     the package names to scan for commands
+     * @param excludedCommands the list of command names to exclude from registration
      */
-    public static void registerCommands(String... packageNames) {
-        processClasses(packageNames, AutoRegister::registerCommand);
+    public static void registerCommands(@NonNull String[] packageNames, @NonNull List<String> excludedCommands) {
+        processClasses(packageNames, clazz -> registerCommand(clazz, excludedCommands));
     }
 
     /**
@@ -51,11 +55,11 @@ public class AutoRegister {
      *
      * @param packageNames the package names to scan for events
      */
-    public static void registerEvents(String... packageNames) {
+    public static void registerEvents(@NonNull String... packageNames) {
         processClasses(packageNames, AutoRegister::registerEvent);
     }
 
-    private static void processClasses(String[] packageNames, ClassProcessor processor) {
+    private static void processClasses(@NonNull String[] packageNames, @NonNull ClassProcessor processor) {
         try {
             URLClassLoader classLoader = (URLClassLoader) plugin.getClass().getClassLoader();
             URL jarUrl = classLoader.getURLs()[0];
@@ -84,7 +88,7 @@ public class AutoRegister {
         }
     }
 
-    private static boolean matchesPackage(String className, String[] packageNames) {
+    private static boolean matchesPackage(@NonNull String className, @NonNull String[] packageNames) {
         for (String packageName : packageNames) {
             if (className.startsWith(packageName.replace('/', '.'))) {
                 return true;
@@ -93,7 +97,7 @@ public class AutoRegister {
         return false;
     }
 
-    private static void registerCommand(Class<?> clazz) {
+    private static void registerCommand(@NonNull Class<?> clazz, @NonNull List<String> excludedCommands) {
         if (!CommandExecutor.class.isAssignableFrom(clazz)) {
             return;
         }
@@ -102,6 +106,11 @@ public class AutoRegister {
             if (method.isAnnotationPresent(Register.class)) {
                 Register registerAnnotation = method.getAnnotation(Register.class);
                 String commandName = registerAnnotation.name();
+
+                if (excludedCommands.contains(commandName)) {
+                    continue;
+                }
+
                 String description = registerAnnotation.description();
                 String aliases = registerAnnotation.aliases();
                 String permission = registerAnnotation.permission();
@@ -120,7 +129,7 @@ public class AutoRegister {
         }
     }
 
-    private static CommandExecutor createExecutorInstance(Class<?> clazz) {
+    private static CommandExecutor createExecutorInstance(@NonNull Class<?> clazz) {
         if (clazz.isInstance(plugin)) {
             return plugin;
         }
@@ -132,7 +141,7 @@ public class AutoRegister {
         }
     }
 
-    private static void registerCompleter(Method method, String commandName) {
+    private static void registerCompleter(@NonNull Method method, @NonNull String commandName) {
         try {
             Completer completerAnnotation = method.getAnnotation(Completer.class);
             TabCompleter completer = completerAnnotation.value().newInstance();
@@ -142,7 +151,7 @@ public class AutoRegister {
         }
     }
 
-    private static void registerEvent(Class<?> clazz) {
+    private static void registerEvent(@NonNull Class<?> clazz) {
         if (Listener.class.isAssignableFrom(clazz)) {
             try {
                 Listener listenerInstance = (Listener) clazz.getConstructor().newInstance();
