@@ -7,8 +7,18 @@ public abstract class PluginSimplifier extends JavaPlugin {
     @Override
     public void onEnable() {
         try {
-            getClass().getDeclaredMethod("onStart");
-            onStart();
+            getClass().getDeclaredMethod("onPluginStart");
+            onPluginStart();
+        } catch (NoSuchMethodException ignored) {
+
+        }
+    }
+
+    @Override
+    public void onLoad() {
+        try {
+            getClass().getDeclaredMethod("onPluginLoad");
+            onPluginLoad();
         } catch (NoSuchMethodException ignored) {
 
         }
@@ -17,26 +27,22 @@ public abstract class PluginSimplifier extends JavaPlugin {
     @Override
     public void onDisable() {
         try {
-            getClass().getDeclaredMethod("onStop");
-            onStop();
+            getClass().getDeclaredMethod("onPluginStop");
+            onPluginStop();
         } catch (NoSuchMethodException ignored) {
 
         }
     }
 
-    /**
-     * Optional method to be overridden by subclasses.
-     * Called automatically during plugin startup after initialization.
-     */
-    protected void onStart() {
+    protected void onPluginStart() {
 
     }
 
-    /**
-     * Optional method to be overridden by subclasses.
-     * Called automatically during plugin shutdown.
-     */
-    protected void onStop() {
+    protected void onPluginLoad() {
+
+    }
+
+    protected void onPluginStop() {
 
     }
 }
