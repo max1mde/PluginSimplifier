@@ -1,7 +1,6 @@
 package com.maximde.pluginsimplifier.automation;
 
 import com.maximde.pluginsimplifier.PluginHolder;
-import com.maximde.pluginsimplifier.PluginSimplifier;
 import com.maximde.pluginsimplifier.annotations.Completer;
 import com.maximde.pluginsimplifier.annotations.Register;
 import com.maximde.pluginsimplifier.command.CommandRegistrar;
@@ -9,6 +8,7 @@ import lombok.NonNull;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -24,7 +24,7 @@ import java.util.logging.Level;
 
 public class AutoRegister {
 
-    private static final PluginSimplifier plugin = PluginHolder.getPluginInstance();
+    private static final JavaPlugin plugin = PluginHolder.getPluginInstance();
     private static final CommandRegistrar commandRegistrar = new CommandRegistrar();
 
     /**
@@ -40,6 +40,17 @@ public class AutoRegister {
     }
 
     /**
+     * Registers all commands with @Register annotation as well as all classes which implement Listener
+     * found in the package/subpackages, excluding specified commands.
+     *
+     * @param packageNames the package names to scan for commands and events
+     */
+    public static void registerAll(@NonNull String[] packageNames) {
+        registerCommands(packageNames, List.of());
+        registerEvents(packageNames);
+    }
+
+    /**
      * Registers all commands with @Register annotation found in the package/subpackages,
      * excluding specified commands.
      *
@@ -48,6 +59,15 @@ public class AutoRegister {
      */
     public static void registerCommands(@NonNull String[] packageNames, @NonNull List<String> excludedCommands) {
         processClasses(packageNames, clazz -> registerCommand(clazz, excludedCommands));
+    }
+
+    /**
+     * Registers all commands with @Register annotation found in the package/subpackages.
+     *
+     * @param packageNames the package names to scan for commands
+     */
+    public static void registerCommands(@NonNull String[] packageNames) {
+        registerCommands(packageNames, List.of());
     }
 
     /**
@@ -83,7 +103,7 @@ public class AutoRegister {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Failed to process classes.", e);
         }
     }
@@ -135,7 +155,7 @@ public class AutoRegister {
         }
         try {
             return (CommandExecutor) clazz.getConstructor().newInstance();
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             plugin.getLogger().log(Level.SEVERE, "Failed to create instance of " + clazz.getName(), ex);
             return null;
         }
@@ -146,7 +166,7 @@ public class AutoRegister {
             Completer completerAnnotation = method.getAnnotation(Completer.class);
             TabCompleter completer = completerAnnotation.value().newInstance();
             Objects.requireNonNull(plugin.getCommand(commandName)).setTabCompleter(completer);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Failed to register tab completer for command: " + commandName, e);
         }
     }
@@ -156,7 +176,7 @@ public class AutoRegister {
             try {
                 Listener listenerInstance = (Listener) clazz.getConstructor().newInstance();
                 plugin.getServer().getPluginManager().registerEvents(listenerInstance, plugin);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 plugin.getLogger().log(Level.SEVERE, "Failed to register event listener: " + clazz.getName(), e);
             }
         }

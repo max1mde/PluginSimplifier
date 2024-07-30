@@ -1,13 +1,12 @@
 package com.maximde.pluginsimplifier;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.bukkit.plugin.java.JavaPlugin;
+
 public class PluginHolder {
-    private static PluginSimplifier pluginInstance;
+    @Getter
+    @Setter
+    private static JavaPlugin pluginInstance;
 
-    public static void setPluginInstance(PluginSimplifier plugin) {
-        pluginInstance = plugin;
-    }
-
-    public static PluginSimplifier getPluginInstance() {
-        return pluginInstance;
-    }
 }
