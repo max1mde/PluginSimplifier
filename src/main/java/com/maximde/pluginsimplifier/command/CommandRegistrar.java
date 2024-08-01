@@ -1,13 +1,10 @@
 package com.maximde.pluginsimplifier.command;
 
 import com.maximde.pluginsimplifier.PluginHolder;
-import lombok.NonNull;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandMap;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.defaults.BukkitCommand;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
@@ -15,36 +12,57 @@ import java.util.List;
 import java.util.logging.Level;
 
 public class CommandRegistrar {
-    private CommandMap commandMap;
+    private static CommandMap commandMap;
 
-    public CommandRegistrar() {
-        JavaPlugin plugin = PluginHolder.getPluginInstance();
+    static {
         try {
             Field commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
             commandMapField.setAccessible(true);
-            this.commandMap = (CommandMap) commandMapField.get(Bukkit.getServer());
-        } catch (Exception e) {
-            plugin.getLogger().log(Level.SEVERE, "Could not retrieve command map", e);
+            commandMap = (CommandMap) commandMapField.get(Bukkit.getServer());
+        } catch (final Exception e) {
+            PluginHolder.getPluginInstance().getLogger().log(Level.SEVERE, "Could not retrieve command map", e);
         }
     }
 
-    public void registerCommand(@NonNull String name, @NonNull CommandExecutor executor, @NonNull String description, @NonNull String aliases, @NonNull String permission) {
+    public static void registerCommand(String name, CommandExecutor executor) {
+        registerCommand(name, executor, null, null, null, null);
+    }
+
+    public static void registerCommand(String name, CommandExecutor executor, String namespace) {
+        registerCommand(name, executor, namespace, null, null, null, null);
+    }
+
+    public static void registerCommand(String name, CommandExecutor executor, String namespace, String usage) {
+        registerCommand(name, executor, namespace, usage, null, null, null);
+    }
+
+    public static void registerCommand(String name, CommandExecutor executor, String namespace, String usage, String description) {
+        registerCommand(name, executor, namespace, usage, description, null, null, null);
+    }
+
+    public static void registerCommand(String name, CommandExecutor executor, String namespace, String usage, String description, List<String> aliases) {
+        registerCommand(name, executor, namespace, usage, description, aliases, null, null);
+    }
+
+    public static void registerCommand(String name, CommandExecutor executor, String namespace, String usage, String description, List<String> aliases, String permission) {
+        registerCommand(name, executor, namespace, usage, description, aliases, permission, null);
+    }
+
+    public static void registerCommand(String name, CommandExecutor executor, String namespace, String usage, String description, List<String> aliases, String permission, TabCompleter completer) {
         JavaPlugin plugin = PluginHolder.getPluginInstance();
-        try {
-            Command command = new BukkitCommand(name) {
-                @Override
-                public boolean execute(@NonNull CommandSender sender, @NonNull String commandLabel, String[] args) {
-                    return executor.onCommand(sender, this, commandLabel, args);
-                }
-            };
-
+        CustomCommand command = new CustomCommand(name, executor, completer);
+        if (description != null) {
             command.setDescription(description);
-            command.setAliases(List.of(aliases.split(",")));
-            command.setPermission(permission);
-
-            commandMap.register(plugin.getPluginMeta().getName(), command);
-        } catch (final Exception e) {
-            plugin.getLogger().log(Level.SEVERE, "Could not register command: " + name, e);
         }
+        if (aliases != null) {
+            command.setAliases(aliases);
+        }
+        if (permission != null) {
+            command.setPermission(permission);
+        }
+        if (usage != null) {
+            command.setUsage(usage.replace("<command>", name));
+        }
+        commandMap.register(namespace != null ? namespace : plugin.getName(), command);
     }
 }
