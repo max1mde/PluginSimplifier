@@ -65,22 +65,22 @@ CommandRegistrar.registerCommand(String name, CommandExecutor executor, String n
 Registers a command with a description.
 
 ```java
-CommandRegistrar.registerCommand(String name, CommandExecutor executor, String namespace, String usage, String description, List<String>
-        aliases);
+CommandRegistrar.registerCommand(String name, CommandExecutor executor, String namespace, String usage,
+String description, List<String> aliases);
 ```
 
 Registers a command with aliases.
 
 ```java
-CommandRegistrar.registerCommand(String name, CommandExecutor executor, String namespace, String usage, String description, List<String>
-        aliases, String permission);
+CommandRegistrar.registerCommand(String name, CommandExecutor executor, String namespace, String usage,
+String description, List<String> aliases, String permission);
 ```
 
 Registers a command with a specified permission.
 
 ```java
-registerCommand(String name, CommandExecutor executor, String namespace, String usage, String description, List<String>
-        aliases, String permission, TabCompleter completer);
+registerCommand(String name, CommandExecutor executor, String namespace, String usage,
+String description, List<String> aliases, String permission, TabCompleter completer);
 ```
 
 Registers a command with all available options, including a tab completer.
@@ -135,17 +135,13 @@ To register the HealCommand, you would use the CommandRegistrar like this:
 ```java
 CommandRegistrar.registerCommand(
     "heal",
-            new HealCommand(),
+    new HealCommand(),
     "myplugin",
-            "/heal [player]",
-            "Heals the specified player or yourself",
-            List.
-
-of("h"),
+    "/heal [player]",
+    "Heals the specified player or yourself",
+    List.of("h"),
     "myplugin.command.heal",
-            new
-
-HealTabCompleter()
+    new HealTabCompleter()
 );
 ```
 
