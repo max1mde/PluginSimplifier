@@ -59,7 +59,8 @@ CommandRegistrar.registerCommand(String name, CommandExecutor executor, String n
 Registers a command with a specified usage format.
 
 ```java
-CommandRegistrar.registerCommand(String name, CommandExecutor executor, String namespace, String usage, String description);
+CommandRegistrar.registerCommand(String name, CommandExecutor executor, String namespace, String usage,
+String description);
 ```
 
 Registers a command with a description.
@@ -79,7 +80,7 @@ String description, List<String> aliases, String permission);
 Registers a command with a specified permission.
 
 ```java
-registerCommand(String name, CommandExecutor executor, String namespace, String usage,
+CommandRegistrar.registerCommand(String name, CommandExecutor executor, String namespace, String usage,
 String description, List<String> aliases, String permission, TabCompleter completer);
 ```
 
