@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.maximde"
-version = "1.0.3-alpha"
+version = "1.0.3"
 
 repositories {
     mavenCentral()
@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT")
+    implementation("org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT")
 }
 
 tasks.jar {
