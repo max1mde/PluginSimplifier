@@ -26,9 +26,9 @@ dependencies {
 </repository>
 
 <dependency>
-<groupId>com.github.max1mde</groupId>
-<artifactId>PluginSimplifier</artifactId>
-<version>1.0.0</version>
+    <groupId>com.github.max1mde</groupId>
+    <artifactId>PluginSimplifier</artifactId>
+    <version>1.0.0</version>
 </dependency>
 ```
 
