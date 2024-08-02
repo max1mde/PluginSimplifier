@@ -19,7 +19,6 @@ dependencies {
 **Maven installation**
 
 ```xml
-
 <repository>
     <id>jitpack.io</id>
     <url>https://jitpack.io</url>
@@ -28,10 +27,25 @@ dependencies {
 <dependency>
     <groupId>com.github.max1mde</groupId>
     <artifactId>PluginSimplifier</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
+# PluginHolder (required)
+```java
+package com.maximde.pluginsimplifier;
+
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class PluginHolder extends JavaPlugin {
+    
+    @Override
+    public void onEnable() {
+        PluginHolder.setPluginInstance(this);
+    }
+}
+```
+Now, you can get the plugin instance using "PluginHolder.getPluginInstance()"
 # Concepts
 
 Command Registration
