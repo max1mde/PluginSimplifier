@@ -33,11 +33,11 @@ dependencies {
 
 # PluginHolder (required)
 ```java
-package com.maximde.pluginsimplifier;
+package com.example.plugin;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class PluginHolder extends JavaPlugin {
+public class MyPlugin extends JavaPlugin {
     
     @Override
     public void onEnable() {
