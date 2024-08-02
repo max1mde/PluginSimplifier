@@ -1,27 +1,23 @@
 plugins {
     kotlin("jvm") version "1.9.20"
     `maven-publish`
-    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "com.maximde"
-version = "1.0.4"
+version = "1.0.5"
 
 repositories {
     mavenCentral()
-    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    maven("https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
-    implementation("org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
 }
 
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
+tasks.jar {
     archiveBaseName.set("PluginSimplifier")
     archiveVersion.set(version.toString())
-    dependencies {
-        exclude(dependency("org.spigotmc:spigot-api"))
-    }
 }
 
 publishing {
