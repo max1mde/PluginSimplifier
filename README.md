@@ -49,56 +49,18 @@ Now, you can get the plugin instance using "PluginHolder.getPluginInstance()"
 # Concepts
 
 Command Registration
-To register a command, you can use the CommandRegistrar class, which provides several overloaded methods for different
-levels of command customization. Here’s a breakdown of the registration methods:
-
-Methods
+To register a command, you can use the CommandRegistrar class
 
 ```java
-CommandRegistrar.register(String name, CommandExecutor executor);
+CommandRegistrar.newCommand("example", new ExampleCommandExecutor())
+    .namespace("customnamespace")
+    .usage("/example <args>")
+    .description("This is an example command")
+    .aliases(Arrays.asList("ex", "sample"))
+    .permission("example.use")
+    .completer(new ExampleTabCompleter())
+    .register();
 ```
-
-Registers a command with the specified name and executor.
-
-```java
-CommandRegistrar.register(String name, CommandExecutor executor, String namespace);
-```
-
-Registers a command with a specified namespace.
-
-```java
-CommandRegistrar.register(String name, CommandExecutor executor, String namespace, String usage);
-```
-
-Registers a command with a specified usage format.
-
-```java
-CommandRegistrar.register(String name, CommandExecutor executor, String namespace, String usage,
-String description);
-```
-
-Registers a command with a description.
-
-```java
-CommandRegistrar.register(String name, CommandExecutor executor, String namespace, String usage,
-String description, List<String> aliases);
-```
-
-Registers a command with aliases.
-
-```java
-CommandRegistrar.register(String name, CommandExecutor executor, String namespace, String usage,
-String description, List<String> aliases, String permission);
-```
-
-Registers a command with a specified permission.
-
-```java
-CommandRegistrar.register(String name, CommandExecutor executor, String namespace, String usage,
-String description, List<String> aliases, String permission, TabCompleter completer);
-```
-
-Registers a command with all available options, including a tab completer.
 
 Example Usage
 Here’s a full example of how to implement and register a custom command using the command system.
@@ -148,34 +110,14 @@ Registering the Command
 To register the HealCommand, you would use the CommandRegistrar like this:
 
 ```java
-CommandRegistrar.registerCommand(
-    "heal",
-    new HealCommand(),
-    "myplugin",
-    "/heal [player]",
-    "Heals the specified player or yourself",
-    List.of("h"),
-    "myplugin.command.heal",
-    new HealTabCompleter()
-);
+CommandRegistrar.command("heal", new HealCommand())
+    .namespace("myplugin")
+    .usage("/heal [player]")
+    .description("Heals the specified player or yourself")
+    .aliases(Arrays.asList("h"))
+    .permission("myplugin.command.heal")
+    .completer(new HealTabCompleter())
+    .register();
 ```
 
-Command Parameters
-
-name: The name of the command (e.g., "heal").
-
-executor: The class that implements CommandExecutor (e.g., new HealCommand).
-
-namespace: The plugin's namespace for the command (optional).
-
-usage: A string describing how to use the command (optional).
-
-description: A brief description of what the command does (optional).
-
-aliases: A list of alternative names for the command (optional).
-
-permission: A string that specifies the required permission to execute the command (optional).
-
-completer: A TabCompleter for command tab completion (optional).
-
-Don't forget to shade the library
+**Don't forget to shade the library!**
