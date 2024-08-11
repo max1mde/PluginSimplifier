@@ -55,46 +55,46 @@ levels of command customization. Here’s a breakdown of the registration method
 Methods
 
 ```java
-CommandRegistrar.registerCommand(String name, CommandExecutor executor);
+CommandRegistrar.register(String name, CommandExecutor executor);
 ```
 
 Registers a command with the specified name and executor.
 
 ```java
-CommandRegistrar.registerCommand(String name, CommandExecutor executor, String namespace);
+CommandRegistrar.register(String name, CommandExecutor executor, String namespace);
 ```
 
 Registers a command with a specified namespace.
 
 ```java
-CommandRegistrar.registerCommand(String name, CommandExecutor executor, String namespace, String usage);
+CommandRegistrar.register(String name, CommandExecutor executor, String namespace, String usage);
 ```
 
 Registers a command with a specified usage format.
 
 ```java
-CommandRegistrar.registerCommand(String name, CommandExecutor executor, String namespace, String usage,
+CommandRegistrar.register(String name, CommandExecutor executor, String namespace, String usage,
 String description);
 ```
 
 Registers a command with a description.
 
 ```java
-CommandRegistrar.registerCommand(String name, CommandExecutor executor, String namespace, String usage,
+CommandRegistrar.register(String name, CommandExecutor executor, String namespace, String usage,
 String description, List<String> aliases);
 ```
 
 Registers a command with aliases.
 
 ```java
-CommandRegistrar.registerCommand(String name, CommandExecutor executor, String namespace, String usage,
+CommandRegistrar.register(String name, CommandExecutor executor, String namespace, String usage,
 String description, List<String> aliases, String permission);
 ```
 
 Registers a command with a specified permission.
 
 ```java
-CommandRegistrar.registerCommand(String name, CommandExecutor executor, String namespace, String usage,
+CommandRegistrar.register(String name, CommandExecutor executor, String namespace, String usage,
 String description, List<String> aliases, String permission, TabCompleter completer);
 ```
 
