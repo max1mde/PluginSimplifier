@@ -24,31 +24,31 @@ public class CommandRegistrar {
         }
     }
 
-    public static void registerCommand(String name, CommandExecutor executor) {
-        registerCommand(name, executor, null, null, null, null);
+    public static void register(String name, CommandExecutor executor) {
+        register(name, executor, null, null, null, null, null, null);
     }
 
-    public static void registerCommand(String name, CommandExecutor executor, String namespace) {
-        registerCommand(name, executor, namespace, null, null, null, null);
+    public static void register(String name, CommandExecutor executor, String namespace) {
+        register(name, executor, namespace, null, null, null, null, null);
     }
 
-    public static void registerCommand(String name, CommandExecutor executor, String namespace, String usage) {
-        registerCommand(name, executor, namespace, usage, null, null, null);
+    public static void register(String name, CommandExecutor executor, String namespace, String usage) {
+        register(name, executor, namespace, usage, null, null, null, null);
     }
 
-    public static void registerCommand(String name, CommandExecutor executor, String namespace, String usage, String description) {
-        registerCommand(name, executor, namespace, usage, description, null, null, null);
+    public static void register(String name, CommandExecutor executor, String namespace, String usage, String description) {
+        register(name, executor, namespace, usage, description, null, null, null);
     }
 
-    public static void registerCommand(String name, CommandExecutor executor, String namespace, String usage, String description, List<String> aliases) {
-        registerCommand(name, executor, namespace, usage, description, aliases, null, null);
+    public static void register(String name, CommandExecutor executor, String namespace, String usage, String description, List<String> aliases) {
+        register(name, executor, namespace, usage, description, aliases, null, null);
     }
 
-    public static void registerCommand(String name, CommandExecutor executor, String namespace, String usage, String description, List<String> aliases, String permission) {
-        registerCommand(name, executor, namespace, usage, description, aliases, permission, null);
+    public static void register(String name, CommandExecutor executor, String namespace, String usage, String description, List<String> aliases, String permission) {
+        register(name, executor, namespace, usage, description, aliases, permission, null);
     }
 
-    public static void registerCommand(String name, CommandExecutor executor, String namespace, String usage, String description, List<String> aliases, String permission, TabCompleter completer) {
+    public static void register(String name, CommandExecutor executor, String namespace, String usage, String description, List<String> aliases, String permission, TabCompleter completer) {
         JavaPlugin plugin = PluginHolder.getPluginInstance();
         CustomCommand command = new CustomCommand(name, executor, completer);
         if (description != null) {
@@ -61,7 +61,7 @@ public class CommandRegistrar {
             command.setPermission(permission);
         }
         if (usage != null) {
-            command.setUsage(usage.replace("<command>", name));
+            command.setUsage(usage.replaceAll("<command>", name));
         }
         commandMap.register(namespace != null ? namespace : plugin.getName(), command);
     }
