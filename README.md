@@ -113,7 +113,7 @@ CommandRegistrar.command("heal", new HealCommand())
     .namespace("myplugin")
     .usage("/heal [player]")
     .description("Heals the specified player or yourself")
-    .aliases(Arrays.asList("h"))
+    .aliases(List.of("h"))
     .permission("myplugin.command.heal")
     .completer(new HealTabCompleter())
     .register();
