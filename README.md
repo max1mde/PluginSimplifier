@@ -46,13 +46,12 @@ public class MyPlugin extends JavaPlugin {
 }
 ```
 Now, you can get the plugin instance using "PluginHolder.getPluginInstance()"
-# Concepts
+# Command Registration
 
-Command Registration
 To register a command, you can use the CommandRegistrar class
 
 ```java
-CommandRegistrar.newCommand("example", new ExampleCommandExecutor())
+CommandRegistrar.command("example", new ExampleCommandExecutor())
     .namespace("customnamespace")
     .usage("/example <args>")
     .description("This is an example command")
