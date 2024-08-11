@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 public class CommandRegistrar {
+
     private static CommandMap commandMap;
 
     static {
@@ -24,45 +25,73 @@ public class CommandRegistrar {
         }
     }
 
-    public static void register(String name, CommandExecutor executor) {
-        register(name, executor, null, null, null, null, null, null);
+    public static CommandBuilder command(String name, CommandExecutor executor) {
+        return new CommandBuilder(name, executor);
     }
 
-    public static void register(String name, CommandExecutor executor, String namespace) {
-        register(name, executor, namespace, null, null, null, null, null);
-    }
+    public static class CommandBuilder {
+        private final String name;
+        private final CommandExecutor executor;
+        private String namespace;
+        private String usage;
+        private String description;
+        private List<String> aliases;
+        private String permission;
+        private TabCompleter completer;
 
-    public static void register(String name, CommandExecutor executor, String namespace, String usage) {
-        register(name, executor, namespace, usage, null, null, null, null);
-    }
-
-    public static void register(String name, CommandExecutor executor, String namespace, String usage, String description) {
-        register(name, executor, namespace, usage, description, null, null, null);
-    }
-
-    public static void register(String name, CommandExecutor executor, String namespace, String usage, String description, List<String> aliases) {
-        register(name, executor, namespace, usage, description, aliases, null, null);
-    }
-
-    public static void register(String name, CommandExecutor executor, String namespace, String usage, String description, List<String> aliases, String permission) {
-        register(name, executor, namespace, usage, description, aliases, permission, null);
-    }
-
-    public static void register(String name, CommandExecutor executor, String namespace, String usage, String description, List<String> aliases, String permission, TabCompleter completer) {
-        JavaPlugin plugin = PluginHolder.getPluginInstance();
-        CustomCommand command = new CustomCommand(name, executor, completer);
-        if (description != null) {
-            command.setDescription(description);
+        private CommandBuilder(String name, CommandExecutor executor) {
+            this.name = name;
+            this.executor = executor;
         }
-        if (aliases != null) {
-            command.setAliases(aliases);
+
+        public CommandBuilder namespace(String namespace) {
+            this.namespace = namespace;
+            return this;
         }
-        if (permission != null) {
-            command.setPermission(permission);
+
+        public CommandBuilder usage(String usage) {
+            this.usage = usage;
+            return this;
         }
-        if (usage != null) {
-            command.setUsage(usage.replaceAll("<command>", name));
+
+        public CommandBuilder description(String description) {
+            this.description = description;
+            return this;
         }
-        commandMap.register(namespace != null ? namespace : plugin.getName(), command);
+
+        public CommandBuilder aliases(List<String> aliases) {
+            this.aliases = aliases;
+            return this;
+        }
+
+        public CommandBuilder permission(String permission) {
+            this.permission = permission;
+            return this;
+        }
+
+        public CommandBuilder completer(TabCompleter completer) {
+            this.completer = completer;
+            return this;
+        }
+
+        public void register() {
+            JavaPlugin plugin = PluginHolder.getPluginInstance();
+            CustomCommand command = new CustomCommand(name, executor, completer);
+
+            if (description != null) {
+                command.setDescription(description);
+            }
+            if (aliases != null) {
+                command.setAliases(aliases);
+            }
+            if (permission != null) {
+                command.setPermission(permission);
+            }
+            if (usage != null) {
+                command.setUsage(usage.replaceAll("<command>", name));
+            }
+
+            commandMap.register(namespace != null ? namespace : plugin.getName(), command);
+        }
     }
 }
