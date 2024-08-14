@@ -11,6 +11,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.logging.Level;
 
+@SuppressWarnings("unused")
 public class CommandRegistrar {
 
     private static CommandMap commandMap;
@@ -44,7 +45,13 @@ public class CommandRegistrar {
     }
 
     /**
-     * The CommandBuilder class allows for the configuration and registration of a command.
+     * A builder class for defining and registering commands.
+     * <p>
+     * This class provides methods for configuring a command's properties, such as its
+     * namespace, usage, description, aliases, permission, and tab completer.
+     * <p>
+     * Once a command has been fully configured, the {@link #register()} method must be
+     * called to make the command available.
      */
     public static class CommandBuilder {
         private final String name;
@@ -54,6 +61,7 @@ public class CommandRegistrar {
         private String description;
         private List<String> aliases;
         private String permission;
+        private String permissionMessage;
         private TabCompleter completer;
 
         private CommandBuilder(String name, CommandExecutor executor) {
@@ -117,6 +125,19 @@ public class CommandRegistrar {
         }
 
         /**
+         * Sets the permission message for the command.
+         *
+         * @param permissionMessage The permission message to set.
+         * @return This CommandBuilder instance for method chaining.
+         * @deprecated This method is deprecated and should not be used, It will be removed in a future version.
+         */
+        @Deprecated
+        public CommandBuilder permissionMessage(String permissionMessage) {
+            this.permissionMessage = permissionMessage;
+            return this;
+        }
+
+        /**
          * Sets the TabCompleter for the command, which handles tab completion logic.
          *
          * @param completer The TabCompleter to set.
@@ -146,7 +167,9 @@ public class CommandRegistrar {
             if (usage != null) {
                 command.setUsage(usage.replaceAll("<command>", name));
             }
-
+            if (permissionMessage != null) {
+                command.setPermissionMessage(permissionMessage);
+            }
             commandMap.register(namespace != null ? namespace : plugin.getName(), command);
         }
     }
