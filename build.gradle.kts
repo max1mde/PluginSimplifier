@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.maximde"
-version = "1.1.0"
+version = "1.1.1"
 
 repositories {
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
@@ -21,11 +21,14 @@ tasks.jar {
     archiveBaseName.set("PluginSimplifier")
     archiveVersion.set(version.toString())
 
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+
     // Exclude kotlin and org.jetbrains packages
     exclude("kotlin/**")
     exclude("org/intellij/**")
     exclude("org/jetbrains/**")
 }
+
 
 tasks.register<Jar>("sourcesJar") {
     archiveClassifier.set("sources")
