@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.max1mde:PluginSimplifier:1.0.9'
+    implementation 'com.github.max1mde:PluginSimplifier:1.1.0'
 }
 ```
 
@@ -27,7 +27,7 @@ dependencies {
 <dependency>
     <groupId>com.github.max1mde</groupId>
     <artifactId>PluginSimplifier</artifactId>
-    <version>1.0.9</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
