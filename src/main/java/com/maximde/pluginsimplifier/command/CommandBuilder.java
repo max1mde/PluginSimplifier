@@ -209,7 +209,7 @@ public class CommandBuilder {
             try {
                 executor.execute(new CommandContext(sender, label, args));
                 return true;
-            } catch (CommandExecutionException e) {
+            } catch (final CommandExecutionException e) {
                 sender.sendMessage(e.getMessage());
                 return false;
             }

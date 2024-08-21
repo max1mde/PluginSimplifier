@@ -132,7 +132,7 @@ public record CommandContext(CommandSender sender, String label, String[] args) 
     public int argInt(int index) {
         try {
             return Integer.parseInt(arg(index));
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             throw new CommandExecutionException("Argument at index " + index + " is not a valid integer.");
         }
     }
@@ -147,7 +147,7 @@ public record CommandContext(CommandSender sender, String label, String[] args) 
     public double argDouble(int index) {
         try {
             return Double.parseDouble(arg(index));
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             throw new CommandExecutionException("Argument at index " + index + " is not a valid double.");
         }
     }
