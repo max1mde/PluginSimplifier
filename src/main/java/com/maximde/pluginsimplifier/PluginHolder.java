@@ -3,35 +3,34 @@ package com.maximde.pluginsimplifier;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
- * Holds an instance of {@link JavaPlugin}
+ * Holds the plugin instance for easy access throughout the plugin.
  */
+@SuppressWarnings("unused")
 public class PluginHolder {
     private static JavaPlugin pluginInstance = null;
 
     /**
-     * Retrieves the currently held instance of {@link JavaPlugin}.
+     * Gets the plugin instance.
      *
-     * @return The current instance of {@link JavaPlugin}, never null after being set.
-     * @throws NullPointerException If this method is called before setting an instance via {@link #setPluginInstance(JavaPlugin)}.
-     * @see #setPluginInstance(JavaPlugin)
+     * @return The current plugin instance.
+     * @throws NullPointerException if the plugin instance has not been set.
      */
-    public static JavaPlugin getPluginInstance() {
+    public static JavaPlugin get() {
         if (pluginInstance == null) {
-            throw new NullPointerException("Something tried to get the plugin instance while its not set");
+            throw new NullPointerException("Plugin instance not set");
         }
         return pluginInstance;
     }
 
     /**
-     * Sets the instance of {@link JavaPlugin} to be held by this class.
+     * Sets the plugin instance.
      *
-     * @param pluginInstance The instance of {@link JavaPlugin} to hold.
-     * @throws NullPointerException If the pluginInstance is null
-     * @see #getPluginInstance()
+     * @param pluginInstance The plugin instance to set.
+     * @throws NullPointerException if the provided plugin instance is null.
      */
-    public static void setPluginInstance(JavaPlugin pluginInstance) {
+    public static void set(JavaPlugin pluginInstance) {
         if (pluginInstance == null) {
-            throw new NullPointerException("Something tried to set a null plugin instance");
+            throw new NullPointerException("Cannot set a null plugin instance");
         }
         PluginHolder.pluginInstance = pluginInstance;
     }
