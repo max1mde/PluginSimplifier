@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Provides context information for a command execution.
@@ -51,15 +50,6 @@ public record CommandContext(CommandSender sender, String label, String[] args) 
     @Override
     public String[] args() {
         return args;
-    }
-
-    /**
-     * Gets the player if the sender is a player.
-     *
-     * @return An Optional containing the player, or empty if the sender is not a player.
-     */
-    public Optional<Player> optionalPlayer() {
-        return sender instanceof Player ? Optional.of((Player) sender) : Optional.empty();
     }
 
     /**
@@ -123,36 +113,6 @@ public record CommandContext(CommandSender sender, String label, String[] args) 
     }
 
     /**
-     * Gets the argument at the specified index as an integer.
-     *
-     * @param index The index of the argument.
-     * @return The argument as an integer.
-     * @throws CommandExecutionException if the argument is not a valid integer.
-     */
-    public int argInt(int index) {
-        try {
-            return Integer.parseInt(arg(index));
-        } catch (final NumberFormatException e) {
-            throw new CommandExecutionException("Argument at index " + index + " is not a valid integer.");
-        }
-    }
-
-    /**
-     * Gets the argument at the specified index as a double.
-     *
-     * @param index The index of the argument.
-     * @return The argument as a double.
-     * @throws CommandExecutionException if the argument is not a valid double.
-     */
-    public double argDouble(int index) {
-        try {
-            return Double.parseDouble(arg(index));
-        } catch (final NumberFormatException e) {
-            throw new CommandExecutionException("Argument at index " + index + " is not a valid double.");
-        }
-    }
-
-    /**
      * Checks if the specified argument index exists.
      *
      * @param index The index to check.
@@ -169,7 +129,7 @@ public record CommandContext(CommandSender sender, String label, String[] args) 
      * @return True if the flag is present, false otherwise.
      */
     public boolean hasFlag(String flag) {
-        return Arrays.stream(args).anyMatch(arg -> arg.equalsIgnoreCase("-" + flag));
+        return Arrays.stream(args).anyMatch(arg -> arg.equalsIgnoreCase(flag));
     }
 
     /**
@@ -193,26 +153,6 @@ public record CommandContext(CommandSender sender, String label, String[] args) 
     public void checkPlayer(String message) {
         if (!isConsole()) {
             throw new CommandExecutionException(message);
-        }
-    }
-
-    /**
-     * Sends a message to the sender.
-     *
-     * @param message The message to send.
-     */
-    public void sendMessage(String message) {
-        sender.sendMessage(message);
-    }
-
-    /**
-     * Sends multiple messages to the sender.
-     *
-     * @param messages The messages to send.
-     */
-    public void sendMessage(String... messages) {
-        for (String message : messages) {
-            sender.sendMessage(message);
         }
     }
 }

@@ -30,7 +30,6 @@ public class CommandBuilder {
     private boolean asyncTabComplete;
     private SimplifierComplete completeHandler;
     private SimplifierAsyncComplete asyncCompleteHandler;
-    private final List<String> flags = new ArrayList<>();
 
     /**
      * Private constructor to initialize the CommandBuilder with a command name.
@@ -152,22 +151,10 @@ public class CommandBuilder {
     }
 
     /**
-     * Adds a flag to the command.
-     *
-     * @param flag The flag to add.
-     * @return The CommandBuilder instance for chaining.
-     */
-    public CommandBuilder flag(String flag) {
-        this.flags.add(flag);
-        return this;
-    }
-
-    /**
      * Registers the command with the server using the configured options.
      */
     public void register() {
-        CustomCommand command = new CustomCommand(name, executor, description, usage, aliases, permission, asyncTabComplete, completeHandler, asyncCompleteHandler);
-        CommandsMap.get().register(namespace == null ? PluginHolder.get().getName() : namespace, command);
+        CommandsMap.get().register(namespace == null ? PluginHolder.get().getName() : namespace, new CustomCommand(name, executor, description, usage, aliases, permission, asyncTabComplete, completeHandler, asyncCompleteHandler));
     }
 
     /**
@@ -224,7 +211,7 @@ public class CommandBuilder {
                 } else if (completeHandler != null) {
                     return Objects.requireNonNullElseGet(completeHandler.complete(context), List::of);
                 }
-            } catch (final Exception e) {
+            } catch (final NullPointerException e) {
                 return List.of();
             }
             return List.of();

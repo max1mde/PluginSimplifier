@@ -16,9 +16,7 @@ public class PluginHolder {
      * @throws NullPointerException if the plugin instance has not been set.
      */
     public static JavaPlugin get() {
-        if (pluginInstance == null) {
-            throw new NullPointerException("Plugin instance not set");
-        }
+        if (pluginInstance == null) throw new NullPointerException("Plugin instance not set");
         return pluginInstance;
     }
 
@@ -29,9 +27,7 @@ public class PluginHolder {
      * @throws NullPointerException if the provided plugin instance is null.
      */
     public static void set(JavaPlugin pluginInstance) {
-        if (pluginInstance == null) {
-            throw new NullPointerException("Cannot set a null plugin instance");
-        }
+        if (pluginInstance == null) throw new NullPointerException("Cannot set a null plugin instance");
         PluginHolder.pluginInstance = pluginInstance;
     }
 }
